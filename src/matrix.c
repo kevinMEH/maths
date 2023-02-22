@@ -254,6 +254,9 @@ void inverse(Matrix* square, Matrix* result) {
 // Turn into identity matrix. Matrix should be a square matrix.
 void identify(Matrix* square) {
     for(int i = 0; i < square->rows * square->columns; i++) {
+        square->elements[i] = 0;
+    }
+    for(int i = 0; i < square->rows * square->columns; i++) {
         square->elements[i] = 1;
         i += square->columns;
     }
