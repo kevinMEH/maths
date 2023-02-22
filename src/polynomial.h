@@ -1,6 +1,11 @@
 #ifndef POLYNOMIAL
 #define POLYNOMIAL
 
+typedef struct Point {
+    double x;
+    double y;
+} Point;
+
 // Variables like x, or constants if the power is 0.
 // For simplicity only integer powers are allowed. Sorry.
 // 0000000000000... = coefficient = 0.0, power = 0
