@@ -44,5 +44,6 @@ void mmProduct(Matrix* first, Matrix* second, Matrix* result);
 
 void inverse(Matrix* square, Matrix* result);
 void identify(Matrix* square);
+void transpose(Matrix* matrix, Matrix* result);
 
 #endif

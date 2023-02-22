@@ -261,3 +261,15 @@ void identify(Matrix* square) {
         i += square->columns;
     }
 }
+
+// Size of matrix must equal to size of result.
+// Rows of matrix must equal columns of result.
+// Columns of matrix must equal rows of result.
+void transpose(Matrix* matrix, Matrix* result) {
+    int resultIndex = 0;
+    for(int i = 0; i < matrix->columns; i++) {
+        for(int j = 0; j < matrix->rows; j++) {
+            result->elements[resultIndex++] = *addressAt(matrix, j, i);
+        }
+    }
+}
