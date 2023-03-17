@@ -138,12 +138,14 @@ double dotProductColumnArray(Matrix* matrix, int column, double* array) {
     return sum;
 }
 
+// Add elements of array2 to array1
 void addArrays(double* array1, double* array2, int size) {
     for(int i = 0; i < size; i++) {
         array1[i] += array2[i];
     }
 }
 
+// Subtract elements of array2 to array1
 void subtractArrays(double* array1, double* array2, int size) {
     for(int i = 0; i < size; i++) {
         array1[i] -= array2[i];
@@ -166,6 +168,8 @@ void copyArrays(double* array, double* result, int size) {
     }
 }
 
+
+
 // Size of vector must be equal to columns of matrix
 // Size of result must be equal to rows of matrix
 void mvProduct(Matrix* matrix, Vector* vector, Vector* result) {
@@ -176,10 +180,30 @@ void mvProduct(Matrix* matrix, Vector* vector, Vector* result) {
     }
 }
 
+// Adds the elements of first and second together, and stores in result
+// result is safe to be either elements.
+// Matrices MUST BE THE SAME SIZE OR INCORRECT ADD OPERATION IS PERFORMED.
+// All in bound elements in result will be replaced.
+void mmAdd(Matrix* first, Matrix* second, Matrix* result) {
+    for(int i = 0; i < first->rows * first->columns; i++) {
+        result->elements[i] = first->elements[i] + second->elements[i];
+    }
+}
+
+// Subtracts the elements of first and second together, and stores in result
+// result is safe to be either elements.
+// Matrices MUST BE THE SAME SIZE OR INCORRECT ADD OPERATION IS PERFORMED.
+// All in bound elements in result will be replaced.
+void mmSubtract(Matrix* first, Matrix* second, Matrix* result) {
+    for(int i = 0; i < first->rows * first->columns; i++) {
+        result->elements[i] = first->elements[i] - second->elements[i];
+    }
+}
+
 // A1 B2 = C3
-// Width of first must equal rows of second
-// Height of result must equal rows of first
-// Width of result must equal columns of second
+// Width of first must equal height of second
+// Height of result must equal height of first
+// Width of result must equal width of second
 // All in bound elements in result will be replaced.
 void mmProduct(Matrix* first, Matrix* second, Matrix* result) {
     for(int i = 0; i < result->rows; i++) {

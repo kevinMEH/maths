@@ -40,6 +40,8 @@ void swapArrays(double* array1, double* array2, int size);
 void copyArrays(double* array, double* result, int size);
 
 void mvProduct(Matrix* matrix, Vector* vector, Vector* result);
+void mmAdd(Matrix* first, Matrix* second, Matrix* result);
+void mmSubtract(Matrix* first, Matrix* second, Matrix* result);
 void mmProduct(Matrix* first, Matrix* second, Matrix* result);
 
 void inverse(Matrix* square, Matrix* result);
