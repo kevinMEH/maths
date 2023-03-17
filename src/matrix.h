@@ -43,6 +43,7 @@ void mvProduct(Matrix* matrix, Vector* vector, Vector* result);
 void mmAdd(Matrix* first, Matrix* second, Matrix* result);
 void mmSubtract(Matrix* first, Matrix* second, Matrix* result);
 void mmProduct(Matrix* first, Matrix* second, Matrix* result);
+void mmStrassen(Matrix* first, Matrix* second, Matrix* result, int depth, int limit);
 
 void inverse(Matrix* square, Matrix* result);
 void identify(Matrix* square);

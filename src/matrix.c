@@ -214,6 +214,171 @@ void mmProduct(Matrix* first, Matrix* second, Matrix* result) {
     }
 }
 
+// Strassen matrix multiplication
+// Matrices must be same size and square.
+// Will keep using Strassen until depth is 0 or until size is less than limit, until
+// which it will use regular matrix multiplication. Set to -1 to prevent it.
+// However, it is recommended to set limit to something like 4 or else excessive
+// callocs will be made.
+// Width of first must equal height of second
+// Height of result must equal height of first
+// Width of result must equal width of second
+// All in bound elements in result will be replaced. Operands will be untouched.
+void mmStrassen(Matrix* first, Matrix* second, Matrix* result, int depth, int limit) {
+    int size = first->columns;
+    if(size == 1) {
+        result->elements[0] = first->elements[0] * second->elements[0];
+        return;
+    }
+    if(size < limit || depth == 0) { // Size less tham limit or depth 0, use regular multiplication
+        mmProduct(first, second, result);
+        return;
+    }
+    --depth;
+    int half = size / 2;
+    int odd = size % 2 == 1;
+    if(odd) half += 1; // If odd, add 1 to half. The last row / column will be 0 padded.
+    // TODO: Allocate single block, pass in block as param. 17 * half * half + 7 * 17 * half/2 * half/2 + 49 * 17 * half/2/2 * half/2/2 ...
+    double* block = (double*) calloc(17 * half * half, sizeof(double));
+    Matrix tempFirst = { half, half, block };
+    Matrix tempSecond = { half, half, &(block[half * half]) };
+    Matrix a11 = { half, half, &(block[2 * half * half]) };
+    Matrix a12 = { half, half, &(block[3 * half * half]) };
+    Matrix a21 = { half, half, &(block[4 * half * half]) };
+    Matrix a22 = { half, half, &(block[5 * half * half]) };
+    Matrix b11 = { half, half, &(block[6 * half * half]) };
+    Matrix b12 = { half, half, &(block[7 * half * half]) };
+    Matrix b21 = { half, half, &(block[8 * half * half]) };
+    Matrix b22 = { half, half, &(block[9 * half * half]) };
+    Matrix m1 = { half, half, &(block[10 * half * half]) };
+    Matrix m2 = { half, half, &(block[11 * half * half]) };
+    Matrix m3 = { half, half, &(block[12 * half * half]) };
+    Matrix m4 = { half, half, &(block[13 * half * half]) };
+    Matrix m5 = { half, half, &(block[14 * half * half]) };
+    Matrix m6 = { half, half, &(block[15 * half * half]) };
+    Matrix m7 = { half, half, &(block[16 * half * half]) };
+    
+    // If we padded split arrays, we must use a different algorithm for copying elements
+    // over because half + half - 1 is out of bounds in the original arrays. So we will
+    // only copy from 0 to half - 2 (so max half + half - 2, not oob for original arrays)
+    // for the split arrays and then fill out the other elements in row half - 1 in a11,
+    // a12 and elements in column half - 1 in a11, a21 separately.
+    if(odd) {
+        for(int i = 0; i < half - 1; i++) {
+            for(int j = 0; j < half - 1; j++) { // Everything except cross
+                *addressAt(&a11, i, j) = *addressAt(first, i, j);
+                *addressAt(&a12, i, j) = *addressAt(first, i, j + half);
+                *addressAt(&a21, i, j) = *addressAt(first, i + half, j);
+                *addressAt(&a22, i, j) = *addressAt(first, i + half, j + half);
+
+                *addressAt(&b11, i, j) = *addressAt(second, i, j);
+                *addressAt(&b12, i, j) = *addressAt(second, i, j + half);
+                *addressAt(&b21, i, j) = *addressAt(second, i + half, j);
+                *addressAt(&b22, i, j) = *addressAt(second, i + half, j + half);
+            }
+            // Vertical
+            *addressAt(&a11, i, half - 1) = *addressAt(first, i, half - 1);
+            *addressAt(&a21, i, half - 1) = *addressAt(first, i + half, half - 1);
+
+            *addressAt(&b11, i, half - 1) = *addressAt(second, i, half - 1);
+            *addressAt(&b21, i, half - 1) = *addressAt(second, i + half, half - 1);
+
+            // Horizontal
+            *addressAt(&a11, half - 1, i) = *addressAt(first, half - 1, i);
+            *addressAt(&a12, half - 1, i) = *addressAt(first, half - 1, i + half);
+
+            *addressAt(&b11, half - 1, i) = *addressAt(second, half - 1, i);
+            *addressAt(&b12, half - 1, i) = *addressAt(second, half - 1, i + half);
+        }
+        // Center
+        *addressAt(&a11, half - 1, half - 1) = *addressAt(first, half - 1, half - 1);
+        *addressAt(&b11, half - 1, half - 1) = *addressAt(second, half - 1, half - 1);
+    } else {
+        for(int i = 0; i < half; i++) {
+            for(int j = 0; j < half; j++) {
+                *addressAt(&a11, i, j) = *addressAt(first, i, j);
+                *addressAt(&a12, i, j) = *addressAt(first, i, j + half);
+                *addressAt(&a21, i, j) = *addressAt(first, i + half, j);
+                *addressAt(&a22, i, j) = *addressAt(first, i + half, j + half);
+
+                *addressAt(&b11, i, j) = *addressAt(second, i, j);
+                *addressAt(&b12, i, j) = *addressAt(second, i, j + half);
+                *addressAt(&b21, i, j) = *addressAt(second, i + half, j);
+                *addressAt(&b22, i, j) = *addressAt(second, i + half, j + half);
+            }
+        }
+    }
+
+    mmAdd(&a11, &a22, &tempFirst);
+    mmAdd(&b11, &b22, &tempSecond);
+    mmStrassen(&tempFirst, &tempSecond, &m1, depth, limit);
+
+    mmAdd(&a21, &a22, &tempFirst);
+    mmStrassen(&tempFirst, &b11, &m2, depth, limit);
+
+    mmSubtract(&b12, &b22, &tempFirst);
+    mmStrassen(&a11, &tempFirst, &m3, depth, limit);
+    
+    mmSubtract(&b21, &b11, &tempFirst);
+    mmStrassen(&a22, &tempFirst, &m4, depth, limit);
+    
+    mmAdd(&a11, &a12, &tempFirst);
+    mmStrassen(&tempFirst, &b22, &m5, depth, limit);
+    
+    mmSubtract(&a21, &a11, &tempFirst);
+    mmAdd(&b11, &b12, &tempSecond);
+    mmStrassen(&tempFirst, &tempSecond, &m6, depth, limit);
+    
+    mmSubtract(&a12, &a22, &tempFirst);
+    mmAdd(&b21, &b22, &tempSecond);
+    mmStrassen(&tempFirst, &tempSecond, &m7, depth, limit);
+    
+    // Recombine, a is useless so a = c
+    mmAdd(&m1, &m4, &a11);
+    mmSubtract(&a11, &m5, &a11);
+    mmAdd(&a11, &m7, &a11);
+    
+    mmAdd(&m3, &m5, &a12);
+
+    mmAdd(&m2, &m4, &a21);
+    
+    mmSubtract(&m1, &m2, &a22);
+    mmAdd(&a22, &m3, &a22);
+    mmAdd(&a22, &m6, &a22);
+    
+    // Copy
+    if(odd) {
+        for(int i = 0; i < half - 1; i++) {
+            for(int j = 0; j < half - 1; j++) { // Everything except cross
+                *addressAt(result, i, j) = *addressAt(&a11, i, j);
+                *addressAt(result, i, j + half) = *addressAt(&a12, i, j);
+                *addressAt(result, i + half, j) = *addressAt(&a21, i, j);
+                *addressAt(result, i + half, j + half) = *addressAt(&a22, i, j);
+            }
+            // Vertical
+            *addressAt(result, i, half - 1) = *addressAt(&a11, i, half - 1);
+            *addressAt(result, i + half, half - 1) = *addressAt(&a21, i, half - 1);
+            // Horizontal
+            *addressAt(result, half - 1, i) = *addressAt(&a11, half - 1, i);
+            *addressAt(result, half - 1, i + half) = *addressAt(&a12, half - 1, i);
+        }
+        // Center
+        *addressAt(result, half - 1, half - 1) = *addressAt(&a11, half - 1, half - 1);
+    } else {
+        for(int i = 0; i < half; i++) {
+            for(int j = 0; j < half; j++) {
+                *addressAt(result, i, j) = *addressAt(&a11, i, j);
+                *addressAt(result, i, j + half) = *addressAt(&a12, i, j);
+                *addressAt(result, i + half, j) = *addressAt(&a21, i, j);
+                *addressAt(result, i + half, j + half) = *addressAt(&a22, i, j);
+            }
+        }
+    }
+    free(block);
+}
+
+
+
 // Inverts a matrix, stores in result.
 // TURNS THE INPUT SQUARE MATRIX INTO IDENTITY!!!
 // Matrix must be invertible
