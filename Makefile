@@ -1,12 +1,8 @@
-all: build/main
-	./build/main
+all: build/$(file)
+	./build/$(file)
 
-build/main: main.c src/*.c
-	gcc main.c src/*.c -o build/main
-
-test-performance:
-	gcc src/polynomial.c src/interpolate.c performance/performance.c -o build/performance
-	./build/performance
+build/$(file): $(file).c src/*.c
+	gcc $(file).c src/*.c -o build/$(file)
 
 clean:
 	rm build/*
