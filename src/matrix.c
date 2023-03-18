@@ -132,8 +132,11 @@ double dotProductColumn(Matrix* matrix, int column, Vector* vector) {
 // Size of array is assumed to be the same as the rows of the matrix.
 double dotProductColumnArray(Matrix* matrix, int column, double* array) {
     double sum = 0.0;
-    for(int i = column, j = 0; i < matrix->columns * matrix->rows; i += matrix->columns, j++) {
-        sum += matrix->elements[i] * array[j];
+    int j = column, rows = matrix->rows, columns = matrix->columns;
+    double* elements = matrix->elements;
+    for(int i = 0; i < rows; i++) {
+        sum += array[i] * elements[j];
+        j += columns;
     }
     return sum;
 }
@@ -206,9 +209,11 @@ void mmSubtract(Matrix* first, Matrix* second, Matrix* result) {
 // Width of result must equal width of second
 // All in bound elements in result will be replaced.
 void mmProduct(Matrix* first, Matrix* second, Matrix* result) {
-    for(int i = 0; i < result->rows; i++) {
+    int rows = result->rows;
+    int columns = result->columns;
+    for(int i = 0; i < rows; i++) {
         double* row = rowAt(first, i);
-        for(int j = 0; j < result->columns; j++) {
+        for(int j = 0; j < columns; j++) {
             *addressAt(result, i, j) = dotProductColumnArray(second, j, row);
         }
     }
