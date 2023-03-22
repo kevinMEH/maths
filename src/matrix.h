@@ -39,14 +39,21 @@ void subtractArrays(double* array1, double* array2, int size);
 void swapArrays(double* array1, double* array2, int size);
 void copyArrays(double* array, double* result, int size);
 
+void vvAdd(Vector* first, Vector* second, Vector* result);
+void vvSubtract(Vector* first, Vector* second, Vector* result);
+void vvMultiply(Vector* first, Vector* second, Vector* result);
 void mvProduct(Matrix* matrix, Vector* vector, Vector* result);
+void mvDiagMultiply(Matrix* matrix, Vector* vector, Vector* result);
 void mmAdd(Matrix* first, Matrix* second, Matrix* result);
 void mmSubtract(Matrix* first, Matrix* second, Matrix* result);
 void mmProduct(Matrix* first, Matrix* second, Matrix* result);
 void mmStrassen(Matrix* first, Matrix* second, Matrix* result, int depth, int limit);
+void mmDiagMultiply(Matrix* first, Matrix* second, Matrix* result);
 
 void inverse(Matrix* square, Matrix* result);
 void identify(Matrix* square);
 void transpose(Matrix* matrix, Matrix* result);
+void extractDiagonals(Matrix* target, Matrix* result);
+void extractDiagonalsToVector(Matrix* target, Vector* result);
 
 #endif

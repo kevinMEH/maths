@@ -173,6 +173,45 @@ void copyArrays(double* array, double* result, int size) {
 
 
 
+// Size of all should be the same.
+// Result can be one of the operands.
+// All elements of result will be replaced.
+void vvAdd(Vector* first, Vector* second, Vector* result) {
+    int size = result->size;
+    double* firstArray = first->elements;
+    double* secondArray = second->elements;
+    double* resultArray = result->elements;
+    for(int i = 0; i < size; i++) {
+        resultArray[i] = firstArray[i] + secondArray[i];
+    }
+}
+
+// Size of all should be the same.
+// Result can be one of the operands.
+// All elements of result will be replaced.
+void vvSubtract(Vector* first, Vector* second, Vector* result) {
+    int size = result->size;
+    double* firstArray = first->elements;
+    double* secondArray = second->elements;
+    double* resultArray = result->elements;
+    for(int i = 0; i < size; i++) {
+        resultArray[i] = firstArray[i] - secondArray[i];
+    }
+}
+
+// Single elementwise multiply.
+// Size of all should be the same.
+// Result is allowed to be one of the operands.
+void vvMultiply(Vector* first, Vector* second, Vector* result) {
+    int size = result->size;
+    double* firstArray = first->elements;
+    double* secondArray = second->elements;
+    double* resultArray = result->elements;
+    for(int i = 0; i < size; i++) {
+        resultArray[i] = firstArray[i] * secondArray[i];
+    }
+}
+
 // Size of vector must be equal to columns of matrix
 // Size of result must be equal to rows of matrix
 void mvProduct(Matrix* matrix, Vector* vector, Vector* result) {
@@ -180,6 +219,21 @@ void mvProduct(Matrix* matrix, Vector* vector, Vector* result) {
     double* vectorArray = vector->elements;
     for(int i = 0; i < matrix->rows; i++) {
         result->elements[i] = dotProductArrays(rowAt(matrix, i), vectorArray, columns);
+    }
+}
+
+// Multiply each element in vector with the corresponding diagonal element in matrix.
+// Useful when multiplying with diagonal matrix.
+// Matrix should be square, or at least rows bigger than column.
+// Size of vector must be equal to column of matrix
+// Size of result must be equal to size of input vector.
+// Result is allowed to be the input vector.
+void mvDiagMultiply(Matrix* matrix, Vector* vector, Vector* result) {
+    int columns = matrix->columns;
+    double* vectorArray = vector->elements;
+    double* resultArray = result->elements;
+    for(int i = 0; i < columns; i++) {
+        resultArray[i] = matrix->elements[i * columns + i] * vectorArray[i];
     }
 }
 
@@ -382,6 +436,23 @@ void mmStrassen(Matrix* first, Matrix* second, Matrix* result, int depth, int li
     free(block);
 }
 
+// All matrices should be square and the same size.
+// Multiplies each element in the diagonal of the first with the corresponding element
+// in the diagonal of the second, and stores in the corresponding diagonal in result.
+// Useful for multiplying diagonalized matrices.
+// Result is allowed to be one of the operands.
+// Only diagonal elements of result will be filled.
+void mmDiagMultiply(Matrix* first, Matrix* second, Matrix* result) {
+    int columns = result->columns;
+    double* firstElements = first->elements;
+    double* secondElements = second->elements;
+    double* resultElements = result->elements;
+    for(int i = 0; i < columns; i++) {
+        resultElements[i * columns + i] = firstElements[i * columns + i] + secondElements[i * columns + i];
+    }
+}
+
+
 
 
 // Inverts a matrix, stores in result.
@@ -465,5 +536,31 @@ void transpose(Matrix* matrix, Matrix* result) {
         for(int j = 0; j < matrix->rows; j++) {
             result->elements[resultIndex++] = *addressAt(matrix, j, i);
         }
+    }
+}
+
+// Copies the diagonals from target into result, and set to 0.
+// Both matrices should be square matrices of the same size.
+// Only the diagonal elements of result will be replaced.
+void extractDiagonals(Matrix* target, Matrix* result) {
+    int columns = result->columns;
+    double* targetElements = target->elements;
+    double* resultElements = result->elements;
+    for(int i = 0; i < columns; i++) {
+        resultElements[i * columns + i] = targetElements[i * columns + i];
+        targetElements[i * columns + i] = 0;
+    }
+}
+
+// Copies the diagonals from target into result, and set to 0.
+// Target should be a square matrix with width and height same as result's size
+// All elements in result replaced
+void extractDiagonalsToVector(Matrix* target, Vector* result) {
+    int columns = result->size;
+    double* targetElements = target->elements;
+    double* resultElements = result->elements;
+    for(int i = 0; i < columns; i++) {
+        resultElements[i] = targetElements[i * columns + i];
+        targetElements[i * columns + i] = 0;
     }
 }
