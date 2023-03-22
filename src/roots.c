@@ -75,3 +75,26 @@ double fixedPoint(double(operation)(double), double estimate, int iterations) {
     }
     return estimate;
 }
+
+
+
+// Jacobi iteration to find the set of values when input into the matrix gives the solutions.
+// The result will be stored in the estimate vector.
+// Matrix must be square. Solution, estimate, and result must match width/height of matrix.
+void jacobiIteration(Matrix* matrix, Vector* solution, Vector* estimate, int iterations) {
+    int columns = matrix->columns;
+    double diagonalElements[columns];
+    Vector diagonal = { columns, diagonalElements }; // Diagonal matrix as vector to save space
+    double tempElements[columns];
+    Vector temp = { columns, tempElements };
+    extractDiagonalsToVector(matrix, &diagonal);
+    for(int i = 0; i < columns; i++) {
+        diagonal.elements[i] = 1 / diagonal.elements[i];
+    }
+    
+    while(iterations-- != 0) {
+        mvProduct(matrix, estimate, &temp);
+        vvSubtract(solution, &temp, &temp);
+        vvMultiply(&diagonal, &temp, estimate);
+    }
+}
