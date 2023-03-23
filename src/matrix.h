@@ -46,7 +46,7 @@ void mvProduct(Matrix* matrix, Vector* vector, Vector* result);
 void mvDiagMultiply(Matrix* matrix, Vector* vector, Vector* result);
 void mmAdd(Matrix* first, Matrix* second, Matrix* result);
 void mmSubtract(Matrix* first, Matrix* second, Matrix* result);
-void mmProduct(Matrix* first, Matrix* second, Matrix* result);
+void mmProduct(Matrix*__restrict first, Matrix*__restrict second, Matrix*__restrict result);
 void mmStrassen(Matrix* first, Matrix* second, Matrix* result, int depth, int limit);
 void mmDiagMultiply(Matrix* first, Matrix* second, Matrix* result);
 

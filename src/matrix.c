@@ -262,13 +262,22 @@ void mmSubtract(Matrix* first, Matrix* second, Matrix* result) {
 // Height of result must equal height of first
 // Width of result must equal width of second
 // All in bound elements in result will be replaced.
-void mmProduct(Matrix* first, Matrix* second, Matrix* result) {
-    int rows = result->rows;
-    int columns = result->columns;
+// operands may not be the same. If they are, but are diagonal matrices, use mmDiagMultiply
+// If they are not diagonal matrices, copy and multiply.
+void mmProduct(Matrix*__restrict first, Matrix*__restrict second, Matrix*__restrict result) {
+    const int rows = result->rows;
+    const int columns = result->columns;
+    const int size = rows * columns;
+    const int firstColumns = first->columns;
+    for(int i = 0; i < size; i++) {
+        result->elements[i] = 0.0;
+    }
     for(int i = 0; i < rows; i++) {
-        double* row = rowAt(first, i);
+        double* row = &(first->elements[i * firstColumns]);
+        for(int k = 0; k < firstColumns; k++) {
         for(int j = 0; j < columns; j++) {
-            *addressAt(result, i, j) = dotProductColumnArray(second, j, row);
+                result->elements[i * columns + j] += row[k] * second->elements[k * columns + j];
+            }
         }
     }
 }
