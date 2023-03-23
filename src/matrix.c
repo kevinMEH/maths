@@ -97,7 +97,8 @@ double length(Vector* vector) {
 }
 
 // Size of operands must be equal
-double dotProduct(Vector* first, Vector* second) {
+// Vectors may not refer to the same element. Use dotSelf if they are the same.
+double dotProduct(Vector*__restrict first, Vector*__restrict second) {
     double sum = 0.0;
     for(int i = 0; i < first->size; i++) {
         sum += first->elements[i] * second->elements[i];
@@ -117,7 +118,7 @@ double dotProductArrays(double* first, double* second, int size) {
 // [c, 2, d]
 // column must be describe a valid column in the matrix; ie less than the matrix columns
 // column is as if column count starts at 0.
-double dotProductColumn(Matrix* matrix, int column, Vector* vector) {
+double dotProductColumn(Matrix*__restrict matrix, int column, Vector*__restrict vector) {
     double sum = 0.0;
     for(int i = column, j = 0; i < matrix->columns * matrix->rows; i += matrix->columns, j++) {
         sum += matrix->elements[i] * vector->elements[j];
@@ -130,10 +131,12 @@ double dotProductColumn(Matrix* matrix, int column, Vector* vector) {
 // column must be describe a valid column in the matrix; ie less than the matrix columns
 // column is as if column count starts at 0.
 // Size of array is assumed to be the same as the rows of the matrix.
-double dotProductColumnArray(Matrix* matrix, int column, double* array) {
+// Matrix and array should not overlap.
+double dotProductColumnArray(Matrix*__restrict matrix, const int column, double*__restrict array) {
     double sum = 0.0;
-    int j = column, rows = matrix->rows, columns = matrix->columns;
-    double* elements = matrix->elements;
+    const int rows = matrix->rows, columns = matrix->columns;
+    int j = column;
+    const double* elements = matrix->elements;
     for(int i = 0; i < rows; i++) {
         sum += array[i] * elements[j];
         j += columns;
@@ -165,7 +168,8 @@ void swapArrays(double* array1, double* array2, int size) {
 }
 
 // Copy from array into result
-void copyArrays(double* array, double* result, int size) {
+// Arrays may not overlap.
+void copyArrays(double*__restrict array, double*__restrict result, int size) {
     for(int i = 0; i < size; i++) {
         result[i] = array[i];
     }
@@ -214,8 +218,8 @@ void vvMultiply(Vector* first, Vector* second, Vector* result) {
 
 // Size of vector must be equal to columns of matrix
 // Size of result must be equal to rows of matrix
-void mvProduct(Matrix* matrix, Vector* vector, Vector* result) {
-    int columns = matrix->columns;
+void mvProduct(Matrix*__restrict matrix, Vector*__restrict vector, Vector*__restrict result) {
+    const int columns = matrix->columns;
     double* vectorArray = vector->elements;
     for(int i = 0; i < matrix->rows; i++) {
         result->elements[i] = dotProductArrays(rowAt(matrix, i), vectorArray, columns);
@@ -275,7 +279,7 @@ void mmProduct(Matrix*__restrict first, Matrix*__restrict second, Matrix*__restr
     for(int i = 0; i < rows; i++) {
         double* row = &(first->elements[i * firstColumns]);
         for(int k = 0; k < firstColumns; k++) {
-        for(int j = 0; j < columns; j++) {
+            for(int j = 0; j < columns; j++) {
                 result->elements[i * columns + j] += row[k] * second->elements[k * columns + j];
             }
         }
@@ -467,7 +471,7 @@ void mmDiagMultiply(Matrix* first, Matrix* second, Matrix* result) {
 // Inverts a matrix, stores in result.
 // TURNS THE INPUT SQUARE MATRIX INTO IDENTITY!!!
 // Matrix must be invertible
-void inverse(Matrix* square, Matrix* result) {
+void inverse(Matrix*__restrict square, Matrix*__restrict result) {
     int width = square->columns;
     double temp[width];
     double tempResult[width];
@@ -539,7 +543,7 @@ void identify(Matrix* square) {
 // Size of matrix must equal to size of result.
 // Rows of matrix must equal columns of result.
 // Columns of matrix must equal rows of result.
-void transpose(Matrix* matrix, Matrix* result) {
+void transpose(Matrix*__restrict matrix, Matrix*__restrict result) {
     int resultIndex = 0;
     for(int i = 0; i < matrix->columns; i++) {
         for(int j = 0; j < matrix->rows; j++) {
@@ -551,7 +555,7 @@ void transpose(Matrix* matrix, Matrix* result) {
 // Copies the diagonals from target into result, and set to 0.
 // Both matrices should be square matrices of the same size.
 // Only the diagonal elements of result will be replaced.
-void extractDiagonals(Matrix* target, Matrix* result) {
+void extractDiagonals(Matrix*__restrict target, Matrix*__restrict result) {
     int columns = result->columns;
     double* targetElements = target->elements;
     double* resultElements = result->elements;
@@ -564,7 +568,7 @@ void extractDiagonals(Matrix* target, Matrix* result) {
 // Copies the diagonals from target into result, and set to 0.
 // Target should be a square matrix with width and height same as result's size
 // All elements in result replaced
-void extractDiagonalsToVector(Matrix* target, Vector* result) {
+void extractDiagonalsToVector(Matrix*__restrict target, Vector*__restrict result) {
     int columns = result->size;
     double* targetElements = target->elements;
     double* resultElements = result->elements;
