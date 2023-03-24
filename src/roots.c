@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 #include "roots.h"
 
 // Slow, a helper function for testing to find the number of iterations needed to find roots within a tolerance.
@@ -84,10 +85,12 @@ double fixedPoint(double(operation)(double), double estimate, int iterations) {
 void jacobiIteration(Matrix* matrix, Vector* solution, Vector* estimate, int iterations) {
     int columns = matrix->columns;
     double diagonalElements[columns];
+    double diagonalElementsCopy[columns];
     Vector diagonal = { columns, diagonalElements }; // Diagonal matrix as vector to save space
     double tempElements[columns];
     Vector temp = { columns, tempElements };
     extractDiagonalsToVector(matrix, &diagonal);
+    memcpy(diagonalElementsCopy, diagonalElements, sizeof(double) * columns);
     for(int i = 0; i < columns; i++) {
         diagonal.elements[i] = 1 / diagonal.elements[i];
     }
@@ -96,5 +99,10 @@ void jacobiIteration(Matrix* matrix, Vector* solution, Vector* estimate, int ite
         mvProduct(matrix, estimate, &temp);
         vvSubtract(solution, &temp, &temp);
         vvMultiply(&diagonal, &temp, estimate);
+    }
+    
+    // Reattach diagonals to matrix
+    for(int i = 0; i < matrix->columns; i++) {
+        matrix->elements[i * matrix->columns + i] = diagonalElementsCopy[i];
     }
 }
