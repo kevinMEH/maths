@@ -24,12 +24,13 @@ double trapezoidal(double lower, double upper, int blocks, double(function)(doub
 
 double simpson13(double lower, double upper, int blocks, double(function)(double)) {
     double interval = upper - lower;
-    double sum = function(lower) + function(upper);
+    double sumDiv2 = function(lower) + function(upper);
+    sumDiv2 /= 2;
     for(int i = 1; i < blocks - 1; i++) {
-        sum += 2 * function(lower + interval * i / blocks);
+        sumDiv2 += function(lower + interval * i / blocks);
     }
     for(int i = 0; i < blocks - 1; i++) {
-        sum += 4 * function(lower + interval * (i + 0.5) / blocks);
+        sumDiv2 += 2 * function(lower + interval * (i + 0.5) / blocks);
     }
-    return (interval / blocks) * sum / 6;
+    return (interval / blocks) * sumDiv2 / 3;
 }
