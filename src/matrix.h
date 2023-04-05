@@ -30,10 +30,10 @@ void scalarDivide(double divide,  Vector* vector);
 void scalarProductArray(double multiply, double* array, int count);
 void scalarProductArray(double divide, double* array, int count);
 double length(Vector* vector);
-double dotProduct(Vector*__restrict first, Vector*__restrict second);
+double dotProduct(Vector* first, Vector* second);
 double dotProductArrays(double* first, double* second, int size);
-double dotProductColumn(Matrix*__restrict matrix, int column, Vector*__restrict vector);
-double dotProductColumnArray(Matrix*__restrict matrix, const int column, double*__restrict array);
+double dotProductColumn(Matrix* matrix, int column, Vector* vector);
+double dotProductColumnArray(Matrix* matrix, const int column, double* array);
 void addArrays(double* array1, double* array2, int size);
 void subtractArrays(double* array1, double* array2, int size);
 void swapArrays(double* array1, double* array2, int size);
@@ -42,18 +42,18 @@ void copyArrays(double*__restrict array, double*__restrict result, int size);
 void vvAdd(Vector* first, Vector* second, Vector* result);
 void vvSubtract(Vector* first, Vector* second, Vector* result);
 void vvMultiply(Vector* first, Vector* second, Vector* result);
-void mvProduct(Matrix*__restrict matrix, Vector*__restrict vector, Vector*__restrict result);
+void mvProduct(Matrix* matrix, Vector* vector, Vector* result);
 void mvDiagMultiply(Matrix* matrix, Vector* vector, Vector* result);
 void mmAdd(Matrix* first, Matrix* second, Matrix* result);
 void mmSubtract(Matrix* first, Matrix* second, Matrix* result);
-void mmProduct(Matrix*__restrict first, Matrix*__restrict second, Matrix*__restrict result);
+void mmProduct(Matrix* first, Matrix* second, Matrix* result);
 void mmStrassen(Matrix* first, Matrix* second, Matrix* result, int depth, int limit);
 void mmDiagMultiply(Matrix* first, Matrix* second, Matrix* result);
 
-void inverse(Matrix*__restrict square, Matrix*__restrict result);
+void inverse(Matrix* square, Matrix* result);
 void identify(Matrix* square);
-void transpose(Matrix*__restrict matrix, Matrix*__restrict result);
-void extractDiagonals(Matrix*__restrict target, Matrix*__restrict result);
-void extractDiagonalsToVector(Matrix*__restrict target, Vector*__restrict result);
+void transpose(Matrix* matrix, Matrix* result);
+void extractDiagonals(Matrix* target, Matrix* result);
+void extractDiagonalsToVector(Matrix* target, Vector* result);
 
 #endif
