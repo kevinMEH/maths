@@ -11,5 +11,7 @@ double secant(double(operation)(double), double first, double second, int iterat
 double fixedPoint(double(operation)(double), double estimate, int iterations);
 
 void jacobiIteration(Matrix* matrix, Vector* solution, Vector* estimates, int iterations);
+void gaussSeidelIteration(Matrix* matrix, Vector* solution, Vector* estimates, int iterations);
+void successiveOverRelaxation(Matrix* matrix, Vector* solution, Vector* estimates, double relaxationFactor, int iterations);
 
 #endif

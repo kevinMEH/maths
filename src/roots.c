@@ -106,3 +106,63 @@ void jacobiIteration(Matrix* matrix, Vector* solution, Vector* estimate, int ite
         matrix->elements[i * matrix->columns + i] = diagonalElementsCopy[i];
     }
 }
+
+// The result will be stored in the estimate vector.
+// Matrix must be square. Solution, estimtae, and result must match width/height of matrix.
+void gaussSeidelIteration(Matrix* matrix, Vector* solution, Vector* estimates, int iterations) {
+    int dimension = matrix->columns;
+    double diagonalElements[dimension];
+    extractDiagonalsToArray(matrix, diagonalElements);
+    double diagonalInverseElements[dimension];
+    for(int i = 0; i < dimension; i++) {
+        diagonalInverseElements[i] = 1 / diagonalElements[i];
+    }
+    double* estimateElements = estimates->elements;
+    double* solutionElements = solution->elements;
+    
+    while(iterations-- != 0) {
+        for(int i = 0; i < dimension; i++) {
+            double* row = rowAt(matrix, i);
+            double inner = solutionElements[i];
+            for(int j = 0; j < dimension; j++) {
+                inner -= row[j] * estimateElements[j];
+            }
+
+            estimateElements[i] = diagonalInverseElements[i] * inner;
+        }
+    }
+    
+    // Reattach diagonals to matrix
+    for(int i = 0; i < dimension; i++) {
+        matrix->elements[i * dimension + i] = diagonalElements[i];
+    }
+}
+
+void successiveOverRelaxation(Matrix* matrix, Vector* solution, Vector* estimates, double relaxationFactor, int iterations) {
+    int dimension = matrix->columns;
+    double diagonalElements[dimension];
+    extractDiagonalsToArray(matrix, diagonalElements);
+    double diagonalInverseElements[dimension];
+    for(int i = 0; i < dimension; i++) {
+        diagonalInverseElements[i] = 1 / diagonalElements[i];
+    }
+    double* estimateElements = estimates->elements;
+    double* solutionElements = solution->elements;
+    
+    while(iterations-- != 0) {
+        for(int i = 0; i < dimension; i++) {
+            double* row = rowAt(matrix, i);
+            double inner = solutionElements[i];
+            for(int j = 0; j < dimension; j++) {
+                inner -= row[j] * estimateElements[j];
+            }
+
+            estimateElements[i] = (1 - relaxationFactor) * estimateElements[i] + relaxationFactor * diagonalInverseElements[i] * inner;
+        }
+    }
+    
+    // Reattach diagonals to matrix
+    for(int i = 0; i < dimension; i++) {
+        matrix->elements[i * dimension + i] = diagonalElements[i];
+    }
+}
