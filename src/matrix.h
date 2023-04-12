@@ -56,5 +56,6 @@ void identify(Matrix* square);
 void transpose(Matrix* matrix, Matrix* result);
 void extractDiagonals(Matrix* target, Matrix* result);
 void extractDiagonalsToVector(Matrix* target, Vector* result);
+void extractDiagonalsToArray(Matrix* target, double* result);
 
 #endif

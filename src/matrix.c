@@ -503,7 +503,7 @@ void inverse(Matrix* square, Matrix* result) {
         }
         // For diagonal element, check if zero. If zero, oversimplifed, move to appropriate row and redo.
         // Since we know the matrix is invertible, we are guaranteed to find/compute a non zero eventually.
-        if(currentRow[i] == 0) {
+        if(currentRow[i] == 0) { // TODO: Can we do this to check for 0s?
             int j = i;
             while(currentRow[++j] == 0); // Find proper location, keep searching until nonzero.
             swapArrays(currentRow, rowAt(square, j), width);
@@ -635,5 +635,17 @@ void extractDiagonalsToVector(Matrix* target, Vector* result) {
     for(int i = 0; i < columns; i++) {
         resultElements[i] = targetElements[i * columns + i];
         targetElements[i * columns + i] = 0;
+    }
+}
+
+// Copies the diagonals from target into result, and set to 0.
+// Target should be a square matrix with width equal to result's length
+// All elements in result replaced
+void extractDiagonalsToArray(Matrix* target, double* result) {
+    int columns = target->columns;
+    double* targetElements = target->elements;
+    for(int i = 0; i < columns; i++) {
+        result[i] = targetElements[i + i * columns];
+        targetElements[i + i * columns] = 0;
     }
 }
