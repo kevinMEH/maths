@@ -529,6 +529,66 @@ void inverse(Matrix* square, Matrix* result) {
     }
 }
 
+// Solves a matrix using the output values for the input values.
+// Turns the input square matrix into identity!!!
+// Matrix must be invertible or else it may not be solved properly.
+// Output will contain the inputs after the operation.
+void gaussEliminate(Matrix* square, Vector* outputs) {
+    int width = square->columns;
+    double temp[width];
+    
+    double* outputArray = outputs->elements;
+    
+    // Make triangular matrix
+    for(int i = 0; i < width; i++) {
+        reduce:;
+        double* currentRow = rowAt(square, i);
+        // Simplify first few elements of current row to 0s using upper rows.
+        // Only need to simplify from 1st element to element before diagonal element.
+        for(int j = 0; j < i; j++) {
+            double factor = currentRow[j]; // Corresponding factor on current row
+            if(factor != 0) { // If current element not zero, simplify
+                double* upperRow = rowAt(square, j);
+                // Copy selected upper row into temp array and multiply by factor.
+                // Upper row will already be triangular matrix, so only need to copy from j till end
+                for(int k = j; k < width; k++) {
+                    temp[k] = factor * upperRow[k];
+                }
+                subtractArrays(&currentRow[j], &temp[j], width - j);
+                
+                // Subtract corresponding element from output
+                outputArray[i] -= factor * outputArray[j];
+            }
+            temp[j] = 0; // Only set current first element to 0. During the next iteration others behind will be overwritten.
+        }
+        // For diagonal element, check if zero. If zero, oversimplified, move to appropriate row and redo.
+        // Since we know the matrix is invertible, we are guaranteed to find/compute a non zero eventually.
+        if(currentRow[i] == 0) { // TODO: Can we do this to check for 0s?
+            int j = i;
+            while(currentRow[++j] == 0); // Find proper location, keep searching until nonzero.
+            swapArrays(currentRow, rowAt(square, j), width);
+            double temp = outputArray[i];
+            outputArray[i] = outputArray[j];
+            outputArray[j] = temp;
+            goto reduce;
+        }
+        // Else, if not zero, normalize current row
+        double factor = currentRow[i];
+        scalarDivideArray(factor, &currentRow[i], width - i);
+        outputArray[i] = outputArray[i] / factor;
+    }
+    // Reduce triangular matrix from bottom right
+    for(int i = width - 2; i >= 0; i--) { // Start from second to last row
+        double* currentRow = rowAt(square, i);
+        for(int j = width - 1; j > i; j--) { // Start from last column to before diagonal element
+            double factor = currentRow[j];
+            currentRow[j] = 0;
+            
+            outputArray[i] -= factor * outputArray[j];
+        }
+    }
+}
+
 // Turn into identity matrix. Matrix should be a square matrix.
 void identify(Matrix* square) {
     for(int i = 0; i < square->rows * square->columns; i++) {

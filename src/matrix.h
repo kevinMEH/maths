@@ -51,6 +51,7 @@ void mmStrassen(Matrix* first, Matrix* second, Matrix* result, int depth, int li
 void mmDiagMultiply(Matrix* first, Matrix* second, Matrix* result);
 
 void inverse(Matrix* square, Matrix* result);
+void gaussEliminate(Matrix* square, Vector* outputs);
 void identify(Matrix* square);
 void transpose(Matrix* matrix, Matrix* result);
 void extractDiagonals(Matrix* target, Matrix* result);
