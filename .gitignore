@@ -1,4 +1,5 @@
 .vscode
 build/*
-main.c
-homework*
+/*.c
+trash
+plots
