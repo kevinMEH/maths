@@ -1,10 +1,7 @@
 #ifndef POLYNOMIAL
 #define POLYNOMIAL
 
-typedef struct Point {
-    double x;
-    double y;
-} Point;
+#include "./basic_structures.h"
 
 // Variables like x, or constants if the power is 0.
 // For simplicity only integer powers are allowed. Sorry.

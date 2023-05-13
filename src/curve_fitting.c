@@ -1,4 +1,6 @@
 #include <math.h>
+#include "basic_structures.h"
+#include "matrix.h"
 #include "curve_fitting.h"
 
 void leastSquaresPolynomial(Point* points, int numPoints, int degree, Vector results) {

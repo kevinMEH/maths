@@ -1,3 +1,4 @@
+#include "basic_structures.h"
 #include "interpolate.h"
 
 // numPoints = number of points in points array
