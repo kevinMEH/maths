@@ -1,3 +1,4 @@
+#include <math.h>
 #include "trace.h"
 
 // Preferably: Use powers of 2 for step count to reach end correctly
@@ -8,6 +9,19 @@ double euler(double start, double startValue, double(derivative)(double, double)
         startValue += stepSize * derivative(start, startValue);
     }
     return startValue;
+}
+
+double eulerLength(double start, double startValue, double(derivative)(double, double), double end, int steps) {
+    double length = 0.0;
+    double stepSize = (end - start) / steps;
+    double stepSizeSquared = stepSize * stepSize;
+    for(int count = 0; count < steps; count++) {
+        start += stepSize;
+        double increment = stepSize * derivative(start, startValue);
+        startValue += increment;
+        length += sqrt(stepSizeSquared + increment * increment);
+    }
+    return length;
 }
 
 double rungeKutta4(double start, double startValue, double(derivative)(double, double), double end, int steps) {
