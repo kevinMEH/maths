@@ -1,10 +1,38 @@
 #include <math.h>
+#include "basic_structures.h"
 #include "trace.h"
 
 // Preferably: Use powers of 2 for step count to reach end correctly
 double euler(double start, double startValue, double(derivative)(double, double), double end, int steps) {
     double stepSize = (end - start) / steps;
     for(int count = 0; count < steps; count++) {
+        start += stepSize;
+        startValue += stepSize * derivative(start, startValue);
+    }
+    return startValue;
+}
+
+/**
+ * Modification of euler() to capture intermediate value pairs.
+ * 
+ * saveArray should be sufficiently large to store steps / interval elements.
+ * 
+ * Interval specifies the number of steps to before saving another element into
+ * the array. Values will be saved before steps are performed.
+ * 
+ * The first step will always be the first one to be saved.
+*/
+double eulerSaveIntermediate(double start, double startValue,
+double(derivative)(double, double),double end, int steps,
+Pair* saveArray, int interval) {
+    double stepSize = (end - start) / steps;
+    int saveArrayCounter = 0;
+    for(int count = 0; count < steps; count++) {
+        if(count % interval == 0) {
+            saveArray[saveArrayCounter].first = start;
+            saveArray[saveArrayCounter].second = startValue;
+            saveArrayCounter++;
+        }
         start += stepSize;
         startValue += stepSize * derivative(start, startValue);
     }
