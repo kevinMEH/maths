@@ -54,6 +54,10 @@ inline double* addressAt(Matrix* matrix, int row, int column) {
     return &(matrix->elements[row * matrix->columns + column]);
 }
 
+inline double valueAt(Matrix* matrix, int row, int column) {
+    return matrix->elements[row * matrix->columns + column];
+}
+
 // row parameter must be a valid row in the matrix. Row count starts at 0.
 inline double* rowAt(Matrix* matrix, int row) {
     return &(matrix->elements[row * matrix->columns]);

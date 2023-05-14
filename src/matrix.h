@@ -23,6 +23,7 @@ void deleteVector(Vector* vector);
 void deleteMatrix(Matrix* matrix);
 
 double* addressAt(Matrix* matrix, int row, int column);
+double valueAt(Matrix* matrix, int row, int column);
 double* rowAt(Matrix* matrix, int row);
 
 void scalarProduct(double multiply, Vector* vector);
