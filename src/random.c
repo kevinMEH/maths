@@ -1,3 +1,4 @@
+#include <math.h>
 #include "random.h"
 
 static XorshiftState state;
@@ -20,4 +21,9 @@ uint64_t xorshift() {
 
 double xorshiftDouble() {
     return (double) xorshift() / (0x8000000000000000u * 2.0);
+}
+
+double normalDistribution(double center, double deviation) {
+    return center + deviation *
+    sqrt(-2 * log(xorshiftDouble())) * cos(2 * M_PI * xorshiftDouble());
 }

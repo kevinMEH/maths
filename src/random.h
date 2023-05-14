@@ -12,4 +12,6 @@ uint64_t xorshift();
 // Random between 0 and 1 not including 1
 double xorshiftDouble();
 
+double normalDistribution(double center, double deviation);
+
 #endif
