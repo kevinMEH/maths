@@ -29,6 +29,7 @@ void scalarProduct(double multiply, Vector* vector);
 void scalarDivide(double divide,  Vector* vector);
 void scalarProductArray(double multiply, double* array, int count);
 void scalarProductArray(double divide, double* array, int count);
+double dotSelf(Vector* vector);
 double length(Vector* vector);
 double dotProduct(Vector* first, Vector* second);
 double dotProductArrays(double* first, double* second, int size);

@@ -14,4 +14,6 @@ void jacobiIteration(Matrix* matrix, Vector* solution, Vector* estimates, int it
 void gaussSeidelIteration(Matrix* matrix, Vector* solution, Vector* estimates, int iterations);
 void successiveOverRelaxation(Matrix* matrix, Vector* solution, Vector* estimates, double relaxationFactor, int iterations);
 
+double eigenIteration(Matrix* matrix, Vector* guess, int iterations);
+
 #endif

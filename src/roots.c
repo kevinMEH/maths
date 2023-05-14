@@ -166,3 +166,42 @@ void successiveOverRelaxation(Matrix* matrix, Vector* solution, Vector* estimate
         matrix->elements[i * dimension + i] = diagonalElements[i];
     }
 }
+
+// Makes the absolute smallest value in the vector the target value, scaling all
+// other values in the vector with it.
+void normalizeSmallest(Vector* vector, double target) {
+    double* elements = vector->elements;
+    int size = vector->size;
+    int smallestIndex = 0;
+    for(int i = 1; i < size; i++) {
+        if(fabs(elements[i]) < fabs(elements[smallestIndex])) {
+            smallestIndex = i;
+        }
+    }
+    double factor = target / elements[smallestIndex];
+    scalarProductArray(factor, elements, size);
+}
+
+// Matrix must be square.
+// Returns the dominant eigenvalue, with eigenvector in guess
+double eigenIteration(Matrix* matrix, Vector* guess, int iterations) {
+    double nextArray[guess->size];
+    Vector next = { guess->size, nextArray };
+    while(iterations > 1) {
+        iterations -= 2;
+        mvProduct(matrix, guess, &next);
+        normalizeSmallest(&next, 1);
+        mvProduct(matrix, &next, guess);
+        normalizeSmallest(guess, 1);
+    }
+    if(iterations == 1) {
+        mvProduct(matrix, guess, &next);
+        normalizeSmallest(&next, 1);
+        for(int i = 0; i < next.size; i++) {
+            guess->elements[i] = next.elements[i];
+        }
+    }
+    mvProduct(matrix, guess, &next);
+    double eigenvalue = dotProduct(&next, guess) / dotSelf(guess);
+    return eigenvalue;
+}
