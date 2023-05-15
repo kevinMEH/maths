@@ -1,6 +1,13 @@
 #include <math.h>
-#include "basic_structures.h"
+#include <stdlib.h>
+#include <strings.h>
+#include <stdio.h>
+
 #include "trace.h"
+#include "basic_structures.h"
+#include "polynomial.h"
+#include "interpolate.h"
+#include "roots.h"
 
 // Preferably: Use powers of 2 for step count to reach end correctly
 double euler(double start, double startValue, double(derivative)(double, double), double end, int steps) {
@@ -64,4 +71,88 @@ double rungeKutta4(double start, double startValue, double(derivative)(double, d
         startValue += stepSize * ((k1 + 2 * k2 + 2 * k3 + k4) / 6);
     }
     return startValue;
+}
+
+
+double bvpHelperDerivativeVariable;
+double bvpHelperStepSize;
+double(*bvpHelperSecondDerivative)(double, double, double);
+double bvpHelperDerivative(double x, double y) {
+    double oldDerivative = bvpHelperDerivativeVariable;
+    bvpHelperDerivativeVariable += bvpHelperStepSize * bvpHelperSecondDerivative(x, y, bvpHelperDerivativeVariable);
+    return oldDerivative;
+}
+
+extern Polynomial* storedPolynomial;
+Polynomial* storedPolynomial2;
+double storedPolynomialEvaluate2(double x) {
+    return polynomialEvaluate(storedPolynomial2, x);
+}
+
+
+// Boundary value problem solver:
+// Given start and ending values, and the second derivative, finds the inital
+// slope such that we will reach the end value within the tolerance allowed
+// 
+// MAKE SURE TO CHECK AFTERWARDS THE VALUE RETURNED!!! IT MAY NOT BE THE DESIRED
+// VALUE IF THE FUNCTION RETURNS EARLY AFTER REACHING MAX INTERPOLATING STEPS.
+// Too many steps is bad because it may mess up interpolating. Use another
+// algorithm if this fails, or perhaps different starting points. (Not 0 and 1)
+double eulerShootInterpolate(double start, double startValue, double end, double endValue,
+double(secondDerivative)(double, double, double), int eulerSteps, int secantSteps,
+double tolerance, int maxInterpolatingSteps) {
+    bvpHelperSecondDerivative = secondDerivative;
+    double stepSize = (end - start) / eulerSteps;
+    bvpHelperStepSize = stepSize;
+    bvpHelperDerivativeVariable = 0;
+    double endValueSlopeZero = euler(start, startValue, bvpHelperDerivative, end, eulerSteps);
+    bvpHelperDerivativeVariable = 1;
+    double endValueSlopeOne = euler(start, startValue, bvpHelperDerivative, end, eulerSteps);
+    
+    maxInterpolatingSteps -= 1;
+
+    Point* points = (Point*) malloc(sizeof(Point) * maxInterpolatingSteps);
+    points[0] = (Point) { 0, endValueSlopeZero };
+    points[1] = (Point) { 1, endValueSlopeOne };
+    int numPoints = 2;
+
+    // Polynomial of slope vs endValue
+    Polynomial interpolate = createPolynomial(maxInterpolatingSteps);
+    storedPolynomial = &interpolate;
+    Polynomial interpolateDerivative = createPolynomial(maxInterpolatingSteps - 1);
+    storedPolynomial2 = &interpolateDerivative;
+
+    // y = v0 + (v1 - v0) x
+    // x = (y - a0) / (a1 - a0)
+    double lastGuess = (endValue - endValueSlopeZero) / (endValueSlopeOne - endValueSlopeZero);
+
+    while(--maxInterpolatingSteps > 0) {
+        lagrange(points, numPoints, &interpolate);
+        // Secant finds the zero point, so will have to subtract desired endValue
+        Term subtractEndValue = { -endValue, 0 };
+        addTermToPolynomial(&interpolate, &subtractEndValue);
+        derivativePolynomial(&interpolate, &interpolateDerivative);
+        
+        double predictedSlope = newtons(storedPolynomialEvaluate, storedPolynomialEvaluate2, lastGuess, secantSteps);
+        
+        bvpHelperDerivativeVariable = lastGuess = predictedSlope;
+        double endValuePredictedSlope = euler(start, startValue, bvpHelperDerivative, end, eulerSteps);
+        if(fabs(endValuePredictedSlope - endValue) < tolerance) {
+            deletePolynomial(&interpolate);
+            free(points);
+            return predictedSlope;
+        }
+        // Clear polynomial as required by lagrange
+        memset(interpolate.terms, 0, sizeof(Term) * numPoints);
+        points[numPoints++] = (Point) { predictedSlope, endValuePredictedSlope };
+    }
+    lagrange(points, numPoints, &interpolate);
+    Term subtractEndValue = { -endValue, 0 };
+    addTermToPolynomial(&interpolate, &subtractEndValue);
+
+    double finalPredictedSlope = newtons(storedPolynomialEvaluate, storedPolynomialEvaluate2, lastGuess, secantSteps);
+
+    deletePolynomial(&interpolate);
+    free(points);
+    return finalPredictedSlope;
 }
