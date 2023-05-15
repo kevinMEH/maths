@@ -182,3 +182,14 @@ void dividePolynomialByConstant(Polynomial* polynomial, double constant, Polynom
         result->terms[i].coefficient = polynomial->terms[i].coefficient / constant;
     }
 }
+
+
+// Find derivative of polynomial.
+// Results polynomial should have size one less than polynomial.
+void derivativePolynomial(Polynomial* polynomial, Polynomial* result) {
+    for(int i = 1; i < polynomial->numTerms; i++) {
+        Term term = polynomial->terms[i];
+        result->terms[i - 1].power = i - 1;
+        result->terms[i - 1].coefficient = term.coefficient * i;
+    }
+}

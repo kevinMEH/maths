@@ -39,4 +39,6 @@ void multiplyPolynomials(Polynomial* first, Polynomial* second, Polynomial* resu
 void multiplyPolynomialByConstant(Polynomial* polynomial, double constant, Polynomial* result);
 void dividePolynomialByConstant(Polynomial* polynomial, double constant, Polynomial* result);
 
+void derivativePolynomial(Polynomial* polynomial, Polynomial* result);
+
 #endif
