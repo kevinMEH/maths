@@ -60,6 +60,8 @@ int* metropolisPath(Matrix* distanceMatrix, int startIndex, double(rng)(), doubl
     int size = distanceMatrix->rows;
     int sizem1 = size - 1;
     int* path = greedyPath(distanceMatrix, startIndex);
+    int* bestPath = (int*) malloc(sizeof(int) * size);
+    double bestDistance = totalDistance(distanceMatrix, path);
     while(iterations-- != 0) {
         double originalDistance = totalDistance(distanceMatrix, path);
         int firstIndex = 1 + (int)(rng() * sizem1);
@@ -68,14 +70,20 @@ int* metropolisPath(Matrix* distanceMatrix, int startIndex, double(rng)(), doubl
         path[firstIndex] = path[secondIndex];
         path[secondIndex] = temp;
         double modifiedDistance = totalDistance(distanceMatrix, path);
-        if(rng() >= (1 / exp2((modifiedDistance - originalDistance) / temperature))) {
-            // Switch back
-            int temp = path[firstIndex];
-            path[firstIndex] = path[secondIndex];
-            path[secondIndex] = temp;
+        if(modifiedDistance < bestDistance) {
+            memcpy(bestPath, path, sizeof(int) * size);
+            bestDistance = modifiedDistance;
+        } else {
+            if(rng() >= (1 / exp2((modifiedDistance - originalDistance) / temperature))) {
+                // Switch back
+                int temp = path[firstIndex];
+                path[firstIndex] = path[secondIndex];
+                path[secondIndex] = temp;
+            }
         }
     }
-    return path;
+    free(path);
+    return bestPath;
 }
 
 // Linear simulated annealing walk
@@ -87,6 +95,8 @@ double startTemperature, double endTemperature, int iterations) {
     int size = distanceMatrix->rows;
     int sizem1 = size - 1;
     int* path = greedyPath(distanceMatrix, startIndex);
+    int* bestPath = (int*) malloc(sizeof(int) * size);
+    double bestDistance = totalDistance(distanceMatrix, path);
     while(iterations-- != 0) {
         double originalDistance = totalDistance(distanceMatrix, path);
         int firstIndex = 1 + (int)(rng() * sizem1);
@@ -95,16 +105,22 @@ double startTemperature, double endTemperature, int iterations) {
         path[firstIndex] = path[secondIndex];
         path[secondIndex] = temp;
         double modifiedDistance = totalDistance(distanceMatrix, path);
-        if(rng() >= (1 / exp2(
-                (modifiedDistance - originalDistance)
-                / (endTemperature + deltaTemp * ((double) iterations) / total)
-            ))
-        ) {
-            // Switch back
-            int temp = path[firstIndex];
-            path[firstIndex] = path[secondIndex];
-            path[secondIndex] = temp;
+        if(modifiedDistance < bestDistance) {
+            memcpy(bestPath, path, sizeof(int) * size);
+            bestDistance = modifiedDistance;
+        } else {
+            if(rng() >= (1 / exp2(
+                    (modifiedDistance - originalDistance)
+                    / (endTemperature + deltaTemp * ((double) iterations) / total)
+                ))
+            ) {
+                // Switch back
+                int temp = path[firstIndex];
+                path[firstIndex] = path[secondIndex];
+                path[secondIndex] = temp;
+            }
         }
     }
-    return path;
+    free(path);
+    return bestPath;
 }
