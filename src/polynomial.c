@@ -84,7 +84,7 @@ void copyTerms(Polynomial* first, Polynomial* second) {
 
 
 
-double computeValue(Polynomial* polynomial, double x) {
+double polynomialEvaluate(Polynomial* polynomial, double x) {
     double result = 0.0;
     for(int i = 0; i < polynomial -> numTerms; i++) {
         Term* term = &(polynomial -> terms[i]);
@@ -93,6 +93,11 @@ double computeValue(Polynomial* polynomial, double x) {
     return result;
 }
 
+
+Polynomial* storedPolynomial;
+double storedPolynomialEvaluate(double x) {
+    return polynomialEvaluate(storedPolynomial, x);
+}
 
 
 void addTermToPolynomial(Polynomial* polynomial, Term* term) {

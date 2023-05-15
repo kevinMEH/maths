@@ -30,7 +30,8 @@ void setToZero(Polynomial* polynomial);
 
 void copyTerms(Polynomial* first, Polynomial* second);
 
-double computeValue(Polynomial* polynomial, double x);
+double polynomialEvaluate(Polynomial* polynomial, double x);
+double storedPolynomialEvaluate(double x);
 
 void addTermToPolynomial(Polynomial* polynomial, Term* term);
 void addPolynomials(Polynomial* first, Polynomial* second, Polynomial* result);
