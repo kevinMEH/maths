@@ -109,7 +109,6 @@ double tolerance, int maxInterpolatingSteps) {
     bvpHelperDerivativeVariable = 1;
     double endValueSlopeOne = euler(start, startValue, bvpHelperDerivative, end, eulerSteps);
     
-    maxInterpolatingSteps -= 1;
 
     Point* points = (Point*) malloc(sizeof(Point) * maxInterpolatingSteps);
     points[0] = (Point) { 0, endValueSlopeZero };
@@ -125,6 +124,8 @@ double tolerance, int maxInterpolatingSteps) {
     // y = v0 + (v1 - v0) x
     // x = (y - a0) / (a1 - a0)
     double lastGuess = (endValue - endValueSlopeZero) / (endValueSlopeOne - endValueSlopeZero);
+
+    maxInterpolatingSteps -= 1;
 
     while(--maxInterpolatingSteps > 0) {
         lagrange(points, numPoints, &interpolate);
