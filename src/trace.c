@@ -139,6 +139,7 @@ double tolerance, int maxInterpolatingSteps) {
         double endValuePredictedSlope = euler(start, startValue, bvpHelperDerivative, end, eulerSteps);
         if(fabs(endValuePredictedSlope - endValue) < tolerance) {
             deletePolynomial(&interpolate);
+            deletePolynomial(&interpolateDerivative);
             free(points);
             return predictedSlope;
         }
@@ -153,6 +154,7 @@ double tolerance, int maxInterpolatingSteps) {
     double finalPredictedSlope = newtons(storedPolynomialEvaluate, storedPolynomialEvaluate2, lastGuess, secantSteps);
 
     deletePolynomial(&interpolate);
+    deletePolynomial(&interpolateDerivative);
     free(points);
     return finalPredictedSlope;
 }
