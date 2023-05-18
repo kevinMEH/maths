@@ -99,11 +99,12 @@ double storedPolynomialEvaluate2(double x) {
 // Too many steps is bad because it may mess up interpolating. Use another
 // algorithm if this fails, or perhaps different starting points. (Not 0 and 1)
 double eulerShootInterpolate(double start, double startValue, double end, double endValue,
-double(secondDerivative)(double, double, double), int eulerSteps, int secantSteps,
+double(secondDerivative)(double, double, double), int eulerSteps, int newtonsSteps,
 double tolerance, int maxInterpolatingSteps) {
-    bvpHelperSecondDerivative = secondDerivative;
     double stepSize = (end - start) / eulerSteps;
+    bvpHelperSecondDerivative = secondDerivative;
     bvpHelperStepSize = stepSize;
+
     bvpHelperDerivativeVariable = 0;
     double endValueSlopeZero = euler(start, startValue, bvpHelperDerivative, end, eulerSteps);
     bvpHelperDerivativeVariable = 1;
@@ -129,12 +130,12 @@ double tolerance, int maxInterpolatingSteps) {
 
     while(--maxInterpolatingSteps > 0) {
         lagrange(points, numPoints, &interpolate);
-        // Secant finds the zero point, so will have to subtract desired endValue
+        // Newtons finds the zero point, so will have to subtract desired endValue
         Term subtractEndValue = { -endValue, 0 };
         addTermToPolynomial(&interpolate, &subtractEndValue);
         derivativePolynomial(&interpolate, &interpolateDerivative);
         
-        double predictedSlope = newtons(storedPolynomialEvaluate, storedPolynomialEvaluate2, lastGuess, secantSteps);
+        double predictedSlope = newtons(storedPolynomialEvaluate, storedPolynomialEvaluate2, lastGuess, newtonsSteps);
         
         bvpHelperDerivativeVariable = lastGuess = predictedSlope;
         double endValuePredictedSlope = euler(start, startValue, bvpHelperDerivative, end, eulerSteps);
@@ -152,7 +153,7 @@ double tolerance, int maxInterpolatingSteps) {
     Term subtractEndValue = { -endValue, 0 };
     addTermToPolynomial(&interpolate, &subtractEndValue);
 
-    double finalPredictedSlope = newtons(storedPolynomialEvaluate, storedPolynomialEvaluate2, lastGuess, secantSteps);
+    double finalPredictedSlope = newtons(storedPolynomialEvaluate, storedPolynomialEvaluate2, lastGuess, newtonsSteps);
 
     deletePolynomial(&interpolate);
     deletePolynomial(&interpolateDerivative);
